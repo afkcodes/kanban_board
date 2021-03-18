@@ -4,7 +4,6 @@ import AddButton from "../AddButton/AddButton";
 import "./column.css";
 
 function Task({ task, index }) {
-
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided) => {
@@ -16,8 +15,10 @@ function Task({ task, index }) {
             ref={provided.innerRef}
           >
             <h3 className="task_title">{task.title}</h3>
-            <hr className="horizontal_rule"/>
-            <p align="left" className="task_desc">{task.content}</p>
+            <hr className="horizontal_rule" />
+            <p align="left" className="task_desc">
+              {task.content}
+            </p>
           </div>
         );
       }}
@@ -25,7 +26,7 @@ function Task({ task, index }) {
   );
 }
 
-function Column({ tasks, column, addTask, updateColumTitle }) {
+function Column({ tasks, column, addTask, updateColumTitle, index }) {
   const [colTitle, setColTitle] = React.useState("");
   function handleChange(e) {
     setColTitle(e.target.value);
@@ -33,37 +34,45 @@ function Column({ tasks, column, addTask, updateColumTitle }) {
   }
 
   return (
-    <div className="task_column">
-      <div className="column_options">
-        <input
-          className="column_title"
-          type="text"
-          onChange={handleChange}
-          value={colTitle || column.title}
-        />
-        <AddButton column={column} addTask={addTask} />
-      </div>
-      <Droppable droppableId={column.id}>
-        {(provided) => {
-          return (
-            <div
-              className="task_list"
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {tasks.map((task, index) => (
-                <Task key={task.id} task={task} index={index} />
-              ))}
-              {provided.placeholder}
-            </div>
-          );
-        }}
-      </Droppable>
-    </div>
+    <Draggable draggableId={column.id} index={index}>
+      {(provided) => (
+        <div
+          {...provided.draggableProps}
+          ref={provided.innerRef}
+          {...provided.dragHandleProps}
+          className="task_column"
+        >
+          <div className="column_options">
+            <input
+              className="column_title"
+              type="text"
+              onChange={handleChange}
+              value={colTitle || column.title}
+            />
+            <AddButton column={column} addTask={addTask} />
+          </div>
+          <Droppable droppableId={column.id} type="task">
+            {(provided) => {
+              return (
+                <div
+                  className="task_list"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
+                  {tasks.map((task, index) => (
+                    <Task key={task.id} task={task} index={index} />
+                  ))}
+                  {provided.placeholder}
+                </div>
+              );
+            }}
+          </Droppable>
+        </div>
+      )}
+    </Draggable>
   );
 }
 
 export default Column;
-
 
 // </div>

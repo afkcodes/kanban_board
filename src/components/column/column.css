@@ -6,6 +6,7 @@
   flex-direction: column;
   display: flex;
 }
+
 .task_list {
   padding: 0.4em;
   flex-grow: 1;
@@ -36,6 +37,12 @@ hr {
   border-radius: 0.8em;
   flex-direction: column;
   padding: 0.8em;
+  border: solid 2px transparent;
+  transition: all 0.2s ease-in;
+}
+.task_container:hover {
+  border: 2px solid #bbbfca;
+
 }
 .column_options {
   padding: 0.4em;
@@ -54,7 +61,7 @@ hr {
   font-size: 1.2em;
   color: white;
 }
-.column_title:focus{
+.column_title:focus {
   background: #e7e6e1;
   border-radius: 0.2em;
   outline: 0;

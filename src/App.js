@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import "./App.css";
 import Column from "./components/column/Column";
 import initialData from "./util/initial";
@@ -83,7 +83,7 @@ function App() {
   }
 
   function handleOnDragEnd(result) {
-    const { destination, source, draggableId } = result;
+    const { destination, source, draggableId, type } = result;
     if (!destination) {
       return;
     }
@@ -91,6 +91,19 @@ function App() {
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
+      return;
+    }
+
+    if (type === "column") {
+      const newColumnOrder = state.columnOrder;
+      newColumnOrder.splice(source.index, 1);
+      newColumnOrder.splice(destination.index, 0, draggableId);
+
+      const newState = {
+        ...state,
+        columnOrder: newColumnOrder,
+      };
+      setState(newState);
       return;
     }
     const startCol = state.columns[source.droppableId];
@@ -139,35 +152,47 @@ function App() {
       },
     };
     setState(newState);
+    return;
   }
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
-      <div className="app">
-        <div className="columns_container">
-          {state.columnOrder.map((columnId) => {
-            const column = state.columns[columnId];
-            const tasks = column.taskIds.map((taskId) => state.tasks[taskId]);
-
-            return (
-              <Column
-                key={column.id}
-                column={column}
-                tasks={tasks}
-                addTask={addTask}
-                updateColumTitle={updateColumTitle}
-              />
-            );
-          })}
-          <span
-            className="add_section"
-            onClick={() => {
-              addColumn();
-            }}
+      <Droppable droppableId="all-columns" direction="horizontal" type="column">
+        {(provided) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            className="app"
           >
-            Add Section
-          </span>
-        </div>
-        </div>
+            <div className="columns_container">
+              {state.columnOrder.map((columnId, index) => {
+                const column = state.columns[columnId];
+                const tasks = column.taskIds.map(
+                  (taskId) => state.tasks[taskId]
+                );
+
+                return (
+                  <Column
+                    key={column.id}
+                    column={column}
+                    tasks={tasks}
+                    addTask={addTask}
+                    updateColumTitle={updateColumTitle}
+                    index={index}
+                  />
+                );
+              })}
+              <span
+                className="add_section"
+                onClick={() => {
+                  addColumn();
+                }}
+              >
+                Add Section
+              </span>
+            </div>
+          </div>
+        )}
+      </Droppable>
     </DragDropContext>
   );
 }
